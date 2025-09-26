@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Management API</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>User Management</h1>
+        
+        <form id="userForm">
+            <input type="text" id="name" placeholder="Enter name" required>
+            <input type="email" id="email" placeholder="Enter email" required>
+            <button type="submit">Add User</button>
+        </form>
+
+        <h2>All Users</h2>
+        <ul id="userList"></ul>
+    </div>
+
+    <script>
+        async function fetchUsers() {
+            const response = await fetch('/api/users');
+            const data = await response.json();
+            const userList = document.getElementById("userList");
+            userList.innerHTML = "";
+            for (let id in data) {
+                const li = document.createElement("li");
+                li.textContent = `ID: ${id}, Name: ${data[id].name}, Email: ${data[id].email}`;
+                userList.appendChild(li);
+            }
+        }
+
+        document.getElementById("userForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const name = document.getElementById("name").value;
+            const email = document.getElementById("email").value;
+
+            await fetch('/api/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email })
+            });
+
+            document.getElementById("name").value = "";
+            document.getElementById("email").value = "";
+            fetchUsers();
+        });
+
+        fetchUsers();
+    </script>
+</body>
+</html>
